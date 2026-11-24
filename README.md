@@ -4,10 +4,19 @@
 
 A full-stack portfolio project. A public landing page tours an interactive 3D Tokyo-at-night city built in React Three Fiber. Behind a login is a real tracker: dashboard, applications, Kanban board, calendar and analytics, backed by Supabase (Postgres with Row Level Security). The **My city** page then draws *your* data as a city: one application, one building.
 
-<!-- Add screenshots to docs/screenshots/ and link them here, for example:
-![Landing page](docs/screenshots/landing-hero.png)
-![My city](docs/screenshots/my-city.png) -->
+## 📸 Project Screenshots
 
+### 🏠 Landing Page
+![Landing Page](docs/screenshots/landing.png)
+
+### 📊 Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### 📋 Kanban Board
+![Board](docs/screenshots/board.png)
+
+### 🌆 My City
+![My City](docs/screenshots/my-city.png)
 ## Features
 
 - **3D landing page**: five districts (Discovery, Application, Interview, Achievement, Analytics) toured by scrolling. Hover and click to explore. Rain, a Tokyo Tower, torii gates, rooftop signs and reflective wet streets.
