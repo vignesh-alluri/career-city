@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# backups and build leftovers never belong in the repository
+*.zip
+*.bak
+*.tsbuildinfo

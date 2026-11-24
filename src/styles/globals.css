@@ -1,0 +1,316 @@
+@import "@fontsource-variable/sora";
+@import "@fontsource-variable/instrument-sans";
+@import "tailwindcss";
+
+/*
+  Design tokens. In Tailwind v4 anything declared in @theme becomes a utility class:
+  --color-accent  ->  bg-accent, text-accent, border-accent
+*/
+@theme {
+  /* Tokyo night: blue-black streets lit by magenta neon, electric blue and the orange of highway light trails. */
+  /* Sleek & bold dark theme: 60% dark slate, 30% indigo, 10% bright sky-cyan. The accent is kept scarce on purpose:
+     primary buttons, links, the active menu item and focus. Everything else is slate and indigo. */
+  --color-void: #0f172a;       /* dominant 60%: page background (slate-900) */
+  --color-surface: #1a1d4d;    /* secondary: the sidebar (deep indigo) */
+  --color-card: #252868;       /* secondary 30%: cards and panels (indigo) */
+  --color-accent: #38bdf8;     /* accent 10%: bright sky-cyan */
+  --color-cyan: #38bdf8;
+  --color-blue: #818cf8;
+  --color-violet: #a78bfa;
+  --color-gold: #fbbf24;       /* only for "in progress" and warning states */
+  --color-success: #34d399;
+  /* Station signage, taken from the platform photo: the green of the clock and the platform number sign, and the red of the signal.
+     Small touches only (clock, platform numbers, signal lights); the 60/30/10 palette above still carries the page. */
+  --color-signal: #3dff7a;
+  --color-signal-red: #ff3b4e;
+  /* Warm lamplight, the counterweight to all the blue: lit windows, bars, ticket stubs, label tints. Purely decorative, so it never
+     competes with amber (urgent) or the accent (things you can click). */
+  --color-ember: #ffb36b;
+  --color-danger: #f87171;
+  --color-amber: #fb923c;
+  --color-ink: #f1f5f9;        /* primary text */
+  --color-muted: #94a3b8;      /* secondary text (slate-400) */
+  --color-line: rgb(129 140 248 / 0.22); /* hairline borders (indigo tinted) */
+
+  --font-display: "Sora Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  /* Japanese signage: uses the Japanese fonts that ship with Windows, macOS and Android. */
+  --font-jp: "Yu Gothic", "Meiryo", "Hiragino Sans", "Noto Sans JP", sans-serif;
+
+  /* layered shadows: a tight dark one for contact, a wide soft one for height, a faint inner highlight on the top edge */
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 2px 6px rgb(0 0 0 / 0.45), 0 14px 30px -14px rgb(0 0 0 / 0.75);
+  --shadow-card-hover: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 4px 10px rgb(0 0 0 / 0.5), 0 22px 44px -16px rgb(0 0 0 / 0.85), 0 0 30px color-mix(in srgb, var(--color-accent) 16%, transparent);
+
+  --radius-panel: 1rem;
+  --radius-control: 0.625rem;
+}
+
+@layer base {
+  html { color-scheme: dark; }
+  body {
+    background-color: var(--color-void);
+    /* a faint dot-matrix, like the pixel grid of lit windows in the Tokyo skyline */
+    background-image: radial-gradient(color-mix(in srgb, var(--color-accent) 6%, transparent) 1px, transparent 1px);
+    background-size: 6px 6px;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+}
+
+/* Dark glass panel: used sparingly (3D overlays, modals), not on every card. */
+@utility glass {
+  background: rgb(16 18 43 / 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+/* Neon-sign glow: the text takes its own colour and radiates it. Use sparingly, on one or two things per screen. */
+@utility neon-text {
+  text-shadow: 0 0 6px currentColor, 0 0 18px currentColor;
+}
+
+/* Vertical Japanese signage, like the hanging signs in a Tokyo street. */
+@utility vertical-jp {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+/* Click ripple (see lib/interactions.ts): a ring of glass. A bright thin rim, a clear refracting inside that
+   slightly brightens whatever is underneath, and a faint tinted edge. Two rings are made per click, one slightly behind. */
+.ripple-wave {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  transform: scale(0);
+  background: radial-gradient(circle,
+    transparent 0%, transparent 44%,
+    rgb(255 255 255 / 0.1) 50%,
+    rgb(255 255 255 / 0.9) 58%,
+    rgb(170 220 255 / 0.5) 62%,
+    color-mix(in srgb, var(--color-accent) 25%, transparent) 69%,
+    transparent 78%);
+  -webkit-mask-image: radial-gradient(circle, transparent 42%, #000 52%, #000 74%, transparent 80%);
+  mask-image: radial-gradient(circle, transparent 42%, #000 52%, #000 74%, transparent 80%);
+  -webkit-backdrop-filter: blur(1.5px) brightness(1.4) saturate(1.4);
+  backdrop-filter: blur(1.5px) brightness(1.4) saturate(1.4);
+  animation: ripple-wave 0.75s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+.ripple-wave--inner { --end: 0.6; animation-delay: 0.08s; opacity: 0; }
+[data-ripple='light'] > .ripple-wave {
+  background: radial-gradient(circle,
+    transparent 0%, transparent 44%,
+    rgb(255 255 255 / 0.1) 50%,
+    rgb(255 255 255 / 0.85) 58%,
+    rgb(255 235 245 / 0.4) 63%,
+    transparent 76%);
+}
+@keyframes ripple-wave {
+  0% { transform: scale(0); opacity: 0.95; }
+  70% { opacity: 0.55; }
+  100% { transform: scale(var(--end, 1)); opacity: 0; }
+}
+
+/* Cursor glow inside a card. The glow sits BEHIND the card's content (negative z-index inside an isolated stacking context). */
+.spotlight { isolation: isolate; }
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 65%);
+}
+.spotlight:hover::before { opacity: 1; }
+
+/* A soft light that follows the mouse across the whole app */
+.app-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(520px circle at var(--gx, 70%) var(--gy, 20%), color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 62%),
+    radial-gradient(340px circle at var(--gx, 70%) var(--gy, 20%), rgb(129 140 248 / 0.12), transparent 60%),
+    /* two fixed pools of indigo and sky in opposite corners, so the page is never one flat slate */
+    radial-gradient(760px circle at 0% 100%, rgb(99 102 241 / 0.14), transparent 62%),
+    /* the top-right pool is warm, like a lit shop window, so the page is not blue from corner to corner */
+    radial-gradient(640px circle at 100% 0%, color-mix(in srgb, var(--color-ember) 9%, transparent), transparent 62%);
+}
+
+/* Entrances: pages slide up a little, dialogs pop in */
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.page-enter { animation: page-in 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes dialog-pop { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+dialog[open] { animation: dialog-pop 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+dialog[open]::backdrop { animation: fade-in 0.2s ease-out; }
+
+/* Personal settings (see lib/preferences.ts): the accent colour and the density are set as attributes on <html>. */
+[data-accent='violet'] { --color-accent: #a78bfa; }
+[data-accent='emerald'] { --color-accent: #34d399; }
+[data-accent='amber'] { --color-accent: #fbbf24; }
+[data-accent='rose'] { --color-accent: #fb7185; }
+/* Compact makes everything a little smaller: every size in the app is in rem, so changing the root size scales it all. */
+[data-density='compact'] { font-size: 14.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ================================================================================================
+   Station signage design language (the workspace only; the landing page keeps its own softer look)
+   ================================================================================================ */
+
+/* Sharper shapes inside the workspace: signs and tickets have small radii, not big soft ones. Every utility reads these variables. */
+.app-shell { --radius-panel: 0.375rem; --radius-control: 0.25rem; }
+
+/* Small mono capitals, like the text on a platform sign. Used for section labels and form labels. */
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: color-mix(in srgb, var(--color-ember) 30%, var(--color-muted)); /* slate with a drop of lamplight */
+  }
+}
+
+/* Surveyor's corner marks on panels: two opposite corners, drawn with four thin gradients on one pseudo-element. */
+.ticks { position: relative; }
+.ticks::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  --tick: color-mix(in srgb, var(--color-accent) 75%, transparent);
+  background:
+    linear-gradient(var(--tick), var(--tick)) top left / 11px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) top left / 1px 11px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) bottom right / 11px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) bottom right / 1px 11px no-repeat;
+}
+
+/* ---- The tiny train. Each .car is a silver box with a lit window strip and a green band, like the train in the platform photo. ---- */
+.train { display: inline-flex; gap: 2px; }
+.car {
+  position: relative;
+  display: block;
+  width: 1.25rem;
+  height: 0.62rem;
+  border-radius: 2px;
+  background: linear-gradient(#dbe5f7, #9db0d4);
+  box-shadow: inset 0 -2px 0 var(--color-signal);
+}
+.car::before {
+  content: '';
+  position: absolute;
+  inset: 2px 2px auto 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff2cc;
+  box-shadow: 0 0 5px #fff2cc;
+}
+.train .car:last-child { border-radius: 2px 7px 7px 2px; } /* the front car is rounded and faces right */
+
+/* A rail with sleepers, drawn with gradients: a thin line and short ticks across it. */
+.rail {
+  position: relative;
+  height: 0.9rem;
+  --rail: rgb(255 179 107 / 0.3);
+  background:
+    linear-gradient(var(--rail), var(--rail)) 0 0.55rem / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--rail) 0 1px, transparent 1px 9px) 0 0.35rem / 100% 0.45rem no-repeat;
+}
+
+@keyframes train-run { from { left: var(--from, -14%); } to { left: var(--to, 104%); } }
+/* once per page: runs across the rail, then is gone */
+.train-run { position: absolute; top: 0.18rem; animation: train-run 1.7s cubic-bezier(0.35, 0.6, 0.25, 1) both; }
+/* forever: used by the loading indicator */
+.train-loop { position: absolute; top: 0.18rem; animation: train-run 1.6s linear infinite; --from: -30%; --to: 100%; }
+/* every so often: crosses the skyline's ground line, then rests for a while */
+@keyframes train-pass { 0% { left: -16%; } 45%, 100% { left: 108%; } }
+.train-pass { position: absolute; animation: train-pass 22s linear infinite; }
+
+/* Things arriving: a card dropped in a new column rolls in from the left like a train pulling in; buildings rise from the ground. */
+@keyframes arrive { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: none; } }
+.arrive { animation: arrive 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+@keyframes build { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.build { transform-origin: bottom; animation: build 0.6s cubic-bezier(0.2, 0.9, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+
+/* ---- A ticket: a notch cut out of the top and bottom edge where the stub is torn off, and a dashed perforation line. ---- */
+.ticket-wrap {
+  filter: drop-shadow(0 6px 8px rgb(0 0 0 / 0.4));
+  transition: transform 0.2s, filter 0.2s;
+}
+.ticket-wrap:hover {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 12px 14px rgb(0 0 0 / 0.5)) drop-shadow(0 0 12px color-mix(in srgb, var(--color-accent) 20%, transparent));
+}
+.ticket {
+  --notch: 7px;
+  --cut: 4.75rem;
+  -webkit-mask: radial-gradient(circle var(--notch) at var(--cut) 0, #0000 97%, #000), radial-gradient(circle var(--notch) at var(--cut) 100%, #0000 97%, #000);
+  -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle var(--notch) at var(--cut) 0, #0000 97%, #000), radial-gradient(circle var(--notch) at var(--cut) 100%, #0000 97%, #000);
+  mask-composite: intersect;
+}
+
+/* A small train standing upright on the sidebar line, front (rounded end) pointing down at the station it is arriving at. */
+.train-v { display: inline-flex; flex-direction: column; gap: 2px; }
+.car-v {
+  position: relative;
+  display: block;
+  width: 0.55rem;
+  height: 0.62rem;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #dbe5f7, #9db0d4);
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.35);
+}
+.car-v::before { content: ''; position: absolute; inset: 2px 2px; border-radius: 1px; background: #fff2cc; box-shadow: 0 0 6px #fff2cc; }
+.train-v .car-v:last-child { border-radius: 2px 2px 6px 6px; box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.35), 0 6px 9px -3px rgb(255 179 107 / 0.85); } /* a headlight throwing light down the line */
+
+/* ---- The workspace paints its own background (so a palette can recolour it) and its own small finishing touches. ---- */
+.app-shell {
+  background-color: var(--color-void);
+  background-image: radial-gradient(color-mix(in srgb, var(--color-accent) 6%, transparent) 1px, transparent 1px);
+  background-size: 6px 6px;
+  color: var(--color-ink);
+  scrollbar-color: color-mix(in srgb, var(--color-ember) 35%, #555) transparent;
+  scrollbar-width: thin;
+}
+.app-shell ::selection { background: color-mix(in srgb, var(--color-ember) 40%, transparent); color: #fff; }
+.app-shell :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+/*
+  DUSK: the surfaces leave blue and indigo for graphite and aubergine, with warm hairlines and warm-grey text. The blue accent now
+  stands out (it is only on buttons, links and focus), and the lamplight orange has something to contrast with.
+  Contrast checked against the text colours: ink on card is about 12:1, muted on card about 6:1.
+*/
+.app-shell[data-palette='dusk'] {
+  --color-void: #100e13;
+  --color-surface: #1b1620;
+  --color-card: #28212c;
+  --color-line: rgb(255 214 170 / 0.15);
+  --color-muted: #aaa3b4;
+}
+.app-shell[data-palette='dusk'] .app-glow {
+  background:
+    radial-gradient(520px circle at var(--gx, 70%) var(--gy, 20%), color-mix(in srgb, var(--color-ember) 9%, transparent), transparent 62%),
+    radial-gradient(340px circle at var(--gx, 70%) var(--gy, 20%), color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 60%),
+    /* plum in the bottom-left, lamplight in the top-right: the two warm pools that replace the old indigo ones */
+    radial-gradient(760px circle at 0% 100%, rgb(170 60 140 / 0.14), transparent 62%),
+    radial-gradient(640px circle at 100% 0%, color-mix(in srgb, var(--color-ember) 11%, transparent), transparent 62%);
+}
