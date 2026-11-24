@@ -2,11 +2,11 @@
 
 
 
-!\[Landing page](career-city/docs/screenshots/landing.png)
+!\[Landing page](docs/screenshots/landing.png)
 
-!\[Dashboard](career-city/docs/screenshots/dashboard.png)
+!\[Dashboard](docs/screenshots/dashboard.png)
 
-!\[Board](career-city/docs/screenshots/board.png)
+!\[Board](docs/screenshots/board.png)
 
-!\[My city](career-city/docs/screenshots/my-city.png)
+!\[My city](docs/screenshots/my-city.png)
 
