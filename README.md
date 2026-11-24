@@ -162,20 +162,3 @@ src/
 supabase/migrations/   the database schema and policies
 ```
 
-📸 Screenshots
-
-🏠 Landing Page
-
-"Landing Page" (docs/screenshots/landing.png)
-
-📊 Dashboard
-
-"Dashboard" (docs/screenshots/dashboard.png)
-
-🗂️ Board
-
-"Board" (docs/screenshots/board.png)
-
-🌆 My City
-
-"My City" (docs/screenshots/my-city.png)
